@@ -8,7 +8,7 @@ def process(file):
     logger.info('Load VM File into memory')
     
     fileContent = loadFile(file)
-    
+    output = []
     # Parse it
           
     for line in fileContent:
@@ -16,9 +16,13 @@ def process(file):
         parsed = parse(removed_comments)
         if removed_comments != False:
             logger.debug(parsed)
-        
+            output.append(parsed)
+    
+    return output    
         
     # Write machine code
+    
+    code = VM
     
     # Save to new file
     

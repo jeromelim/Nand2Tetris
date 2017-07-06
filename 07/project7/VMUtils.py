@@ -12,11 +12,10 @@ def loadFile(filepath):
 
         return lines
     
-def change_extension(filename, old, new):
+def change_extension(filepath, new):
     
-    filename = filepath.split('\\')[-1]
-    filename = filename.replace(old,new)
-    filepath = os.path.join(settings.savepath,filename)
+    extension = filepath.split('.')[-1]
+    filepath = filepath.replace(extension,new)
     
     return filepath
     
