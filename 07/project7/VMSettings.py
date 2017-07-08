@@ -18,17 +18,19 @@ commandTypes = {'add'           :       'C_ARITHMETIC'  ,
                 'call'          :       'C_CALL'         
                }
 
-aCommands =    {'add'           :       'C_ARITHMETIC'  ,
-                'sub'           :       'C_ARITHMETIC'  ,
-                'neg'           :       'C_ARITHMETIC'  ,
-                'eq'            :       'JEQ'  ,
-                'gt'            :       'JGT'  ,
-                'lt'            :       'JLT'  ,
-                'and'           :       'C_ARITHMETIC'  ,
-                'or'            :       'C_ARITHMETIC'  ,
-                'not'           :       'C_ARITHMETIC'  
+# 1 BINARY 0 UNARY -1 JMP
 
-               }
+aCommands =    {'add'           :       [1  , '+'] ,
+                'sub'           :       [1  , '-'] ,
+                'neg'           :       [0  , '-'] , 
+                'eq'            :       [-1 , 'JEQ'] ,
+                'gt'            :       [-1 , 'JGT'] ,
+                'lt'            :       [-1 , 'JLT'] ,
+                'and'           :       [1  , '&'] ,
+                'or'            :       [1  , '|'] ,
+                'not'           :       [0  , '!']
+    
+                }
 '''
 null No jump
 JGT If out > 0 jump

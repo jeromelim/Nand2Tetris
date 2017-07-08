@@ -20,14 +20,6 @@ def process(file):
     
     return output    
         
-    # Write machine code
-    
-    code = VM
-    
-    # Save to new file
-    
-    return True
-
 def parse(line):
     parsed = {'commandType' : '', 'arg1' : '', 'arg2' : ''}
     parsed['commandType'] = commandType(line)

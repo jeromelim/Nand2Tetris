@@ -1,4 +1,6 @@
 import logging
+import VMSettings
+
 logger = logging.getLogger(__name__)
 
 # sample parsed data
@@ -6,14 +8,19 @@ logger = logging.getLogger(__name__)
 
 # Counters for Stack
 
-SP = 0
-
 def getSP(SP):
     
     if SP == 0:        
         return 256
     elif SP > 0:
         return 256 + SP
+    
+def counter(i):
+    while True:
+        i = i + 1
+        yield i
+        
+jumpCounter = counter(0)
 
 def code(parsed):       
     
@@ -22,7 +29,7 @@ def code(parsed):
     output = []
     
     for line in parsed:
-        logger.debug('Command type is %s' % line['commandType'])
+        logger.debug(('Command type is %s' % line['commandType']))
         result = writeLine(line)       
         output.extend(result)
     
@@ -43,13 +50,12 @@ def writeLine(line):
 def writeArithmetic(line):
     
     # {'commandType': 'C_ARITHMETIC', 'arg1': 'sub', 'arg2': None}
+    result = commandChooser(line['arg1'])
+    logger.debug(line['arg1'])
     
-    if line['arg1'] == 'add':
-        result = add() # ["I'm an arithmetic line!"]
+    logger.debug(result)
     
-        return result
-    
-    return ["I'm an arithmetic line!"]
+    return result
 
 def writePushPop(line):
     
@@ -65,22 +71,37 @@ def writePushPop(line):
     
     return result
 
-def aCommand(arg):
-
-    aCommands =    {'add'           :      '+'  , # Binary
-                    'sub'           :      '-'  , # Binary
-                    'neg'           :      '-'  , # Unary
-                    'eq'            :       eqCommand()  , # Unary using JMP
-                    'gt'            :       gtCommand()  , # Unary using JMP
-                    'lt'            :       ltCommand()  , # Unary using JMP
-                    'and'           :       '&'  , # Binary
-                    'or'            :       orCommand()  , # Binary
-                    'not'           :       '!' # Unary
+def commandChooser(command):
+    # Chooses command based designated type
+    commandType, operator = VMSettings.aCommands[command]
+    logger.debug(('commandType, operator', commandType, operator ))
+    if commandType == 0:
+        result = unaryCommand(operator)
+    elif commandType == 1:
+        result = binaryCommand(operator)
+    elif commandType == -1:
+        result = jumpCommand(operator)
+        
+    return result
+        
+def unaryCommand(operator):
+    # Apply chosen command to first item in stack, leaving the result the only item in stack
+    logger.info('unary: %s' % operator)
     
-                   }
+    result = []
+    
+    commands = [ '@SP', # Stack Pointer
+                 'A=M', # Go to memory address in pointer eg. 256
+                 'A=A-1', # We're not writing anything new to the stack so go back one item to last written
+                 'M=%sM' % operator, # Add unary operator
+                ]    
+          
+    result.extend(commands)
+    return result
 
-def addCommand():
-    # add first 2 items in stack [256, 257]
+def binaryCommand(operator):
+    # Apply chosen command to first 2 items in stack, leaving the result the only item in stack
+    logger.info('binary: %s' % operator)
     
     result = []
     
@@ -90,14 +111,60 @@ def addCommand():
                  'D=M', # Set D register to contents of top most stack item               
                  'M=0', # Clear that register                 
                  'A=A-1', # Go to the new top of stack               
-                 'M=D+M', # Calculate the sum of the value in D and the current register and replace its contents with it
+                 'M=M%sD' % operator, # Calculate the sum of the value in D and the current register and replace its contents with it
                  '@SP',
                  'M=M-1' # Decrement the stack pointer
                 ]    
           
     result.extend(commands)
+    
+    logger.debug(commands)
+    
     return result
 
+def jumpCommand(operator):
+
+    # Apply chosen command to first 2 items in stack, leaving the result the only item in stack
+    logger.info('jump: %s' % operator)
+    jumpLabel = 'endJump%s' % next(jumpCounter)
+    trueLabel = next(jumpCounter)
+    
+    result = []
+    
+    
+    #subtract A-A=0
+    subtractNumbers = binaryCommand('-')   
+    
+    commands = [ '@SP', # Stack Pointer
+                 'A=M', # Go to memory address in pointer eg. 256
+                 'A=A-1', # We're not writing anything new to the stack so go back one item to last written
+                 'D=M', # Set D register to contents of top most stack item               
+                 '@true%s' % trueLabel,
+                 'D;%s' % operator, 
+                 '@SP',
+                 'A=M',
+                 'A=A-1',#
+                 'M=0',
+                 '@%s' % jumpLabel,
+                 '0;JMP',
+                 '(true%s)' % trueLabel,
+                 '@SP',
+                 'A=M',
+                 'A=A-1',
+                 'M=-1',
+                 '@SP',
+                  #'M=M+1',
+                 '(%s)' % jumpLabel
+                ]
+    #if 'J' in operator:
+         
+    result.extend(subtractNumbers)
+   
+    result.extend(commands)
+    
+    logger.debug(commands)
+    
+    return result
 
 
 def writePush(line):
@@ -117,17 +184,9 @@ def writePush(line):
                      'A=M',
                      'M=D',
                      '@SP',
-                     #'@increment',
-                     #'M;JGT',
-                     #'(increment)',
                      'M=M+1'
                     ]
-        
-        # result.append('@%s' % line['arg2']) #getSP()+1)
-        # result.append('D=A')
-        # 
-        # result.append('@SP')
-        # result.append('M=D')
+
         result.extend(commands)
     
     
