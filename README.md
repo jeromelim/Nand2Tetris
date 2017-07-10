@@ -2,4 +2,5 @@
 
 Implementation of NandToTetris assignments in Python
 
-NandToTetris Hack Assembler 
+Hack Assembler - DONE
+Virtual Machine Translator - IN PROGRESSk
