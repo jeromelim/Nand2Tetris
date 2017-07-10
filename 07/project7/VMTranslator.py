@@ -1,3 +1,4 @@
+import os
 import logging
 #logging.basicConfig(level=logging.INFO)
 logging.basicConfig(level=logging.DEBUG)
@@ -15,6 +16,8 @@ logger.info('Found the following files: %s' % VMFiles)
 # For each file do these steps
 for item in VMFiles:
     logger.info('Processing %s' % item)
+    filename = os.path.basename(item).split('.')[0]
+    logger.info('Filename is %s' % filename)
     
     parsed = VMParser.process(item)
 
@@ -22,7 +25,7 @@ for item in VMFiles:
         logger.info('Successfully parsed %s' % item)
         
     # Write machine code        
-    code = VMCodeWriter.code(parsed)
+    code = VMCodeWriter.code(parsed, filename)
     
     # Save to new file
     newFileName = change_extension(item, 'asm')

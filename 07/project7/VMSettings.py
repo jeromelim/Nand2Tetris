@@ -1,5 +1,9 @@
+# Storing of translation pairs in dictionaries
+# Should look into either xml or yaml for storing this data in a
+# human readable/writeable settings format
 
-commandTypes = {'add'           :       'C_ARITHMETIC'  ,
+commandTypes = {
+                'add'           :       'C_ARITHMETIC'  ,
                 'sub'           :       'C_ARITHMETIC'  ,
                 'neg'           :       'C_ARITHMETIC'  ,
                 'eq'            :       'C_ARITHMETIC'  ,
@@ -20,7 +24,8 @@ commandTypes = {'add'           :       'C_ARITHMETIC'  ,
 
 # 1 BINARY 0 UNARY -1 JMP
 
-aCommands =    {'add'           :       [1  , '+'] ,
+aCommands =    {
+                'add'           :       [1  , '+'] ,
                 'sub'           :       [1  , '-'] ,
                 'neg'           :       [0  , '-'] , 
                 'eq'            :       [-1 , 'JEQ'] ,
@@ -28,9 +33,15 @@ aCommands =    {'add'           :       [1  , '+'] ,
                 'lt'            :       [-1 , 'JLT'] ,
                 'and'           :       [1  , '&'] ,
                 'or'            :       [1  , '|'] ,
-                'not'           :       [0  , '!']
-    
+                'not'           :       [0  , '!']    
                 }
+
+memSegments = {    
+               'local'          :       'LCL'  ,
+               'argument'       :       'ARG'  ,
+               'this'           :       'THIS' ,
+               'that'           :       'THAT'     
+              }
 '''
 null No jump
 JGT If out > 0 jump
